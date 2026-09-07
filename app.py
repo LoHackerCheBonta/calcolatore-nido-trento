@@ -96,7 +96,13 @@ if st.button("Calcola Punteggio e Stima Graduatoria", type="primary", disabled=n
     totale = calcola_punteggio(dati_utente)
     posizione, probabilita, dettaglio, colore = stima_graduatoria(totale)
 
-    st.success(f"### 🎉 Il tuo punteggio totale è: {totale} punti")
+    esito_per_colore = {
+        "green": ("🎉", st.success),
+        "orange": ("🎉", st.warning),
+        "red": ("😔", st.error),
+    }
+    emoji, mostra_box = esito_per_colore[colore]
+    mostra_box(f"### {emoji} Il tuo punteggio totale è: {totale} punti")
 
     st.markdown("#### Proiezione in Graduatoria (Basata su dati storici)")
 
