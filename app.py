@@ -23,7 +23,7 @@ lista_attesa = st.checkbox("Ero in lista d'attesa l'anno precedente e sto ripres
 priorita = st.checkbox("Il minore ha una disabilità certificata o grave svantaggio sociale attestato")
 
 st.subheader("2. Situazione Familiare")
-tipo_genitore_solo = st.selectbox("Presenza di un solo genitore nel nucleo:", OPZIONI_GENITORE_SOLO)
+tipo_genitore_solo = st.selectbox("Presenza di genitori nel nucleo:", OPZIONI_GENITORE_SOLO)
 
 col1, col2 = st.columns(2)
 with col1:
@@ -32,9 +32,9 @@ with col2:
     dis_figlio = st.selectbox("Disabilità di un altro figlio:", OPZIONI_DIS_FIGLIO)
 
 st.subheader("3. Figli nel nucleo familiare (sotto gli 11 anni)")
-st.info("Includi nel conteggio anche la bimba per cui stai presentando la domanda.")
+st.info("Includi nel conteggio anche il/la bimb* per cui stai presentando la domanda.")
 
-totale_figli = st.number_input("Numero totale di figli (sotto gli 11 anni)", min_value=1, max_value=10, value=2)
+totale_figli = st.number_input("Numero **totale** di figli (sotto gli 11 anni)", min_value=1, max_value=10, value=2)
 
 st.markdown("Dettaglio per fasce d'età:")
 c1, c2, c3 = st.columns(3)
@@ -46,7 +46,7 @@ with c3:
     over_6 = st.number_input("Bambini tra 6 e 11 anni", min_value=0, max_value=totale_figli, value=1)
 
 fratelli_nido = st.number_input(
-    "Tra questi, quanti fratelli/sorelle frequentano già o sono iscritti allo stesso nido?",
+    "Tra questi, quanti fratelli/sorelle frequentano già o sono iscritti allo **stesso nido**?",
     min_value=0,
     max_value=totale_figli,
     value=0
@@ -64,7 +64,7 @@ st.subheader("4. Situazione Lavorativa")
 lavoro_g1 = st.selectbox("Occupazione Genitore 1:", OPZIONI_LAVORO)
 disagio_g1 = st.checkbox("Disagio lavoro Genitore 1 (Lontananza > 50/110km per oltre 180gg)")
 
-lavoro_g2 = st.selectbox("Occupazione Genitore 2 (se presente):", OPZIONI_LAVORO, index=len(OPZIONI_LAVORO) - 1)
+lavoro_g2 = st.selectbox("Occupazione Genitore 2 (se presente):", OPZIONI_LAVORO)
 disagio_g2 = st.checkbox("Disagio lavoro Genitore 2 (Lontananza > 50/110km per oltre 180gg)")
 
 st.subheader("5. Situazione Economica")
