@@ -36,6 +36,82 @@ OPZIONI_LAVORO = [
     LAVORO_STUDENTE, LAVORO_NESSUNA_OCCUPAZIONE
 ]
 
+PUNTI_GENITORE_SOLO = {
+    GENITORE_SOLO_ASSENTE_VEDOVANZA: 10.0,
+    GENITORE_SOLO_ASSENTE_SEPARAZIONE: 8.0,
+}
+
+PUNTI_DIS_GENITORE = {
+    DIS_GENITORE_GRAVE: 8.0,
+    DIS_GENITORE_MEDIA: 6.0,
+}
+
+PUNTI_DIS_FIGLIO = {
+    DIS_FIGLIO_GRAVE: 6.0,
+    DIS_FIGLIO_MEDIA: 4.0,
+}
+
+PUNTI_LAVORO = {
+    LAVORO_DIPENDENTE_OLTRE_36H: 9.0,
+    LAVORO_DIPENDENTE_30_36H: 8.5,
+    LAVORO_DIPENDENTE_24_30H: 6.0,
+    LAVORO_DIPENDENTE_18_24H: 5.5,
+    LAVORO_DIPENDENTE_FINO_18H: 4.0,
+    LAVORO_OCCASIONALE_OLTRE_4MESI: 3.5,
+    LAVORO_OCCASIONALE_FINO_4MESI: 3.0,
+    LAVORO_DISOCCUPATO: 2.5,
+    LAVORO_STUDENTE: 4.0,
+    LAVORO_NESSUNA_OCCUPAZIONE: 0.0,
+}
+
+# Fasce ICEF in ordine crescente di soglia. L'ultima fascia (0.44) usa "<"
+# anziché "<=" come le altre, esattamente come nella versione originale.
+FASCE_ICEF = [
+    (0.07, 7.0),
+    (0.12, 6.0),
+    (0.17, 5.0),
+    (0.22, 4.0),
+    (0.27, 3.0),
+    (0.32, 2.0),
+    (0.38, 1.0),
+    (0.44, 0.5),
+]
+
+
+def _punti_icef(icef):
+    for soglia, punti in FASCE_ICEF[:-1]:
+        if icef <= soglia:
+            return punti
+    ultima_soglia, ultimi_punti = FASCE_ICEF[-1]
+    if icef < ultima_soglia:
+        return ultimi_punti
+    return 0.0
+
+
+# Dati statistici estratti dalla graduatoria 2025/2026.
+# Ordinate per soglia minima decrescente: si restituisce la prima fascia
+# il cui punteggio minimo è raggiunto dal punteggio dell'utente.
+FASCE_GRADUATORIA = [
+    (40, "Top 10", "Certa (100%)",
+     "Assegnazione garantita, quasi sicuramente nel nido di prima scelta.", "green"),
+    (30, "Tra i primi 45", "Altissima (100%)",
+     "Posto garantito al primo giro di assegnazioni.", "green"),
+    (24.5, "Tra i primi 120", "Molto Alta",
+     "La totalità dei richiedenti in questa fascia ha ottenuto un nido.", "green"),
+    (21.5, "Tra il 120° e il 255° posto", "Alta",
+     "Ottime chance. Le prime mancate assegnazioni si registrano solo in fondo a questo "
+     "scaglione per i nidi più gettonati.", "green"),
+    (19.5, "Tra il 256° e il 466° posto", "Incertezza (Media/Bassa)",
+     "Dipende criticamente dalla scelta: nidi come Martignano o Piccolo Girasole esauriscono "
+     "i posti prima, mentre strutture come Roncafort o Villazzano Gabbiolo offrono ancora "
+     "speranze.", "orange"),
+    (17, "Tra il 467° e il 585° posto", "Molto Bassa",
+     "La stragrande maggioranza in questa fascia non ottiene l'assegnazione al primo turno.", "red"),
+    (float('-inf'), "Oltre il 585° posto", "Quasi Nulla",
+     "Punteggio insufficiente per l'ammissione iniziale, salvo rinunce massive o disponibilità "
+     "in nidi periferici pochissimo richiesti.", "red"),
+]
+
 
 def calcola_punteggio(dati):
     punteggio = 0.0
@@ -45,21 +121,11 @@ def calcola_punteggio(dati):
         punteggio += 20.0
 
     # 2.1) PRESENZA DI UN SOLO GENITORE
-    if dati['tipo_genitore_solo'] == GENITORE_SOLO_ASSENTE_VEDOVANZA:
-        punteggio += 10.0
-    elif dati['tipo_genitore_solo'] == GENITORE_SOLO_ASSENTE_SEPARAZIONE:
-        punteggio += 8.0
+    punteggio += PUNTI_GENITORE_SOLO.get(dati['tipo_genitore_solo'], 0.0)
 
     # 2.2) DISABILITA' NEL NUCLEO
-    if dati['dis_genitore'] == DIS_GENITORE_GRAVE:
-        punteggio += 8.0
-    elif dati['dis_genitore'] == DIS_GENITORE_MEDIA:
-        punteggio += 6.0
-
-    if dati['dis_figlio'] == DIS_FIGLIO_GRAVE:
-        punteggio += 6.0
-    elif dati['dis_figlio'] == DIS_FIGLIO_MEDIA:
-        punteggio += 4.0
+    punteggio += PUNTI_DIS_GENITORE.get(dati['dis_genitore'], 0.0)
+    punteggio += PUNTI_DIS_FIGLIO.get(dati['dis_figlio'], 0.0)
 
     # 2.3) PUNTEGGIO FIGLI
     totale_figli = dati['totale_figli']
@@ -73,47 +139,18 @@ def calcola_punteggio(dati):
     punteggio += (dati['fratelli_nido'] * 3.0)
 
     # 2.4) SITUAZIONE LAVORATIVA
-    punteggi_lavoro = {
-        LAVORO_DIPENDENTE_OLTRE_36H: 9.0,
-        LAVORO_DIPENDENTE_30_36H: 8.5,
-        LAVORO_DIPENDENTE_24_30H: 6.0,
-        LAVORO_DIPENDENTE_18_24H: 5.5,
-        LAVORO_DIPENDENTE_FINO_18H: 4.0,
-        LAVORO_OCCASIONALE_OLTRE_4MESI: 3.5,
-        LAVORO_OCCASIONALE_FINO_4MESI: 3.0,
-        LAVORO_DISOCCUPATO: 2.5,
-        LAVORO_STUDENTE: 4.0,
-        LAVORO_NESSUNA_OCCUPAZIONE: 0.0
-    }
-
-    punteggio_g1 = punteggi_lavoro.get(dati['lavoro_g1'], 0.0)
+    punteggio_g1 = PUNTI_LAVORO.get(dati['lavoro_g1'], 0.0)
     if dati['disagio_g1'] and dati['lavoro_g1'] not in LAVORI_SENZA_DISAGIO:
         punteggio_g1 += 2.0
     punteggio += punteggio_g1
 
-    punteggio_g2 = punteggi_lavoro.get(dati['lavoro_g2'], 0.0)
+    punteggio_g2 = PUNTI_LAVORO.get(dati['lavoro_g2'], 0.0)
     if dati['disagio_g2'] and dati['lavoro_g2'] not in LAVORI_SENZA_DISAGIO:
         punteggio_g2 += 2.0
     punteggio += punteggio_g2
 
     # 3) SITUAZIONE ECONOMICA (ICEF)
-    icef = dati['icef']
-    if icef <= 0.07:
-        punteggio += 7.0
-    elif icef <= 0.12:
-        punteggio += 6.0
-    elif icef <= 0.17:
-        punteggio += 5.0
-    elif icef <= 0.22:
-        punteggio += 4.0
-    elif icef <= 0.27:
-        punteggio += 3.0
-    elif icef <= 0.32:
-        punteggio += 2.0
-    elif icef <= 0.38:
-        punteggio += 1.0
-    elif icef < 0.44:
-        punteggio += 0.5
+    punteggio += _punti_icef(dati['icef'])
 
     # 4) TEMPO DI ATTESA
     if dati['lista_attesa']:
@@ -127,41 +164,6 @@ def calcola_punteggio(dati):
 
 
 def stima_graduatoria(punteggio):
-    # Dati statistici estratti dalla graduatoria 2025/2026
-    if punteggio >= 40:
-        pos = "Top 10"
-        prob = "Certa (100%)"
-        dettaglio = "Assegnazione garantita, quasi sicuramente nel nido di prima scelta."
-        colore = "green"
-    elif punteggio >= 30:
-        pos = "Tra i primi 45"
-        prob = "Altissima (100%)"
-        dettaglio = "Posto garantito al primo giro di assegnazioni."
-        colore = "green"
-    elif punteggio >= 24.5:
-        pos = "Tra i primi 120"
-        prob = "Molto Alta"
-        dettaglio = "La totalità dei richiedenti in questa fascia ha ottenuto un nido."
-        colore = "green"
-    elif punteggio >= 21.5:
-        pos = "Tra il 120° e il 255° posto"
-        prob = "Alta"
-        dettaglio = "Ottime chance. Le prime mancate assegnazioni si registrano solo in fondo a questo scaglione per i nidi più gettonati."
-        colore = "green"
-    elif punteggio >= 19.5:
-        pos = "Tra il 256° e il 466° posto"
-        prob = "Incertezza (Media/Bassa)"
-        dettaglio = "Dipende criticamente dalla scelta: nidi come Martignano o Piccolo Girasole esauriscono i posti prima, mentre strutture come Roncafort o Villazzano Gabbiolo offrono ancora speranze."
-        colore = "orange"
-    elif punteggio >= 17:
-        pos = "Tra il 467° e il 585° posto"
-        prob = "Molto Bassa"
-        dettaglio = "La stragrande maggioranza in questa fascia non ottiene l'assegnazione al primo turno."
-        colore = "red"
-    else:
-        pos = "Oltre il 585° posto"
-        prob = "Quasi Nulla"
-        dettaglio = "Punteggio insufficiente per l'ammissione iniziale, salvo rinunce massive o disponibilità in nidi periferici pochissimo richiesti."
-        colore = "red"
-
-    return pos, prob, dettaglio, colore
+    for soglia_minima, pos, prob, dettaglio, colore in FASCE_GRADUATORIA:
+        if punteggio >= soglia_minima:
+            return pos, prob, dettaglio, colore
