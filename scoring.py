@@ -1,9 +1,39 @@
+GENITORE_SOLO_ASSENTE_VEDOVANZA = 'Assenza per vedovanza o mancato riconoscimento'
+GENITORE_SOLO_ASSENTE_SEPARAZIONE = 'Assenza per separazione, divorzio o abbandono'
+
+OPZIONI_GENITORE_SOLO = [
+    'Due genitori presenti', GENITORE_SOLO_ASSENTE_VEDOVANZA, GENITORE_SOLO_ASSENTE_SEPARAZIONE
+]
+
+DISABILITA_NESSUNA = 'Nessuna'
+DIS_GENITORE_GRAVE = 'Grave (>= 74%)'
+DIS_GENITORE_MEDIA = 'Media (66% - 73%)'
+DIS_FIGLIO_GRAVE = 'Grave (>= 74% o minorenne)'
+DIS_FIGLIO_MEDIA = 'Media (66% - 73%)'
+
+OPZIONI_DIS_GENITORE = [DISABILITA_NESSUNA, DIS_GENITORE_GRAVE, DIS_GENITORE_MEDIA]
+OPZIONI_DIS_FIGLIO = [DISABILITA_NESSUNA, DIS_FIGLIO_GRAVE, DIS_FIGLIO_MEDIA]
+
+LAVORO_DIPENDENTE_OLTRE_36H = 'Dipendente (> 36 ore/settimana)'
+LAVORO_DIPENDENTE_30_36H = 'Dipendente (30 - 36 ore/settimana)'
+LAVORO_DIPENDENTE_24_30H = 'Dipendente (24 - 30 ore/settimana)'
+LAVORO_DIPENDENTE_18_24H = 'Dipendente (18 - 24 ore/settimana)'
+LAVORO_DIPENDENTE_FINO_18H = 'Dipendente (fino a 18 ore/settimana)'
+LAVORO_OCCASIONALE_OLTRE_4MESI = 'Occasionale/Precario (> 4 mesi)'
+LAVORO_OCCASIONALE_FINO_4MESI = 'Occasionale/Precario (fino a 4 mesi)'
+LAVORO_DISOCCUPATO = 'Disoccupato iscritto al Centro per l\'Impiego'
+LAVORO_STUDENTE = 'Studente'
+LAVORO_NESSUNA_OCCUPAZIONE = 'Nessuna occupazione / Altro'
+
+# Chi rientra in queste categorie non ha diritto al bonus disagio lavorativo.
+LAVORI_SENZA_DISAGIO = {LAVORO_DISOCCUPATO, LAVORO_NESSUNA_OCCUPAZIONE}
+
 OPZIONI_LAVORO = [
-    'Dipendente (> 36 ore/settimana)', 'Dipendente (30 - 36 ore/settimana)',
-    'Dipendente (24 - 30 ore/settimana)', 'Dipendente (18 - 24 ore/settimana)',
-    'Dipendente (fino a 18 ore/settimana)', 'Occasionale/Precario (> 4 mesi)',
-    'Occasionale/Precario (fino a 4 mesi)', 'Disoccupato iscritto al Centro per l\'Impiego',
-    'Studente', 'Nessuna occupazione / Altro'
+    LAVORO_DIPENDENTE_OLTRE_36H, LAVORO_DIPENDENTE_30_36H,
+    LAVORO_DIPENDENTE_24_30H, LAVORO_DIPENDENTE_18_24H,
+    LAVORO_DIPENDENTE_FINO_18H, LAVORO_OCCASIONALE_OLTRE_4MESI,
+    LAVORO_OCCASIONALE_FINO_4MESI, LAVORO_DISOCCUPATO,
+    LAVORO_STUDENTE, LAVORO_NESSUNA_OCCUPAZIONE
 ]
 
 
@@ -15,20 +45,20 @@ def calcola_punteggio(dati):
         punteggio += 20.0
 
     # 2.1) PRESENZA DI UN SOLO GENITORE
-    if dati['tipo_genitore_solo'] == 'Assenza per vedovanza o mancato riconoscimento':
+    if dati['tipo_genitore_solo'] == GENITORE_SOLO_ASSENTE_VEDOVANZA:
         punteggio += 10.0
-    elif dati['tipo_genitore_solo'] == 'Assenza per separazione, divorzio o abbandono':
+    elif dati['tipo_genitore_solo'] == GENITORE_SOLO_ASSENTE_SEPARAZIONE:
         punteggio += 8.0
 
     # 2.2) DISABILITA' NEL NUCLEO
-    if dati['dis_genitore'] == 'Grave (>= 74%)':
+    if dati['dis_genitore'] == DIS_GENITORE_GRAVE:
         punteggio += 8.0
-    elif dati['dis_genitore'] == 'Media (66% - 73%)':
+    elif dati['dis_genitore'] == DIS_GENITORE_MEDIA:
         punteggio += 6.0
 
-    if dati['dis_figlio'] == 'Grave (>= 74% o minorenne)':
+    if dati['dis_figlio'] == DIS_FIGLIO_GRAVE:
         punteggio += 6.0
-    elif dati['dis_figlio'] == 'Media (66% - 73%)':
+    elif dati['dis_figlio'] == DIS_FIGLIO_MEDIA:
         punteggio += 4.0
 
     # 2.3) PUNTEGGIO FIGLI
@@ -44,27 +74,25 @@ def calcola_punteggio(dati):
 
     # 2.4) SITUAZIONE LAVORATIVA
     punteggi_lavoro = {
-        'Dipendente (> 36 ore/settimana)': 9.0,
-        'Dipendente (30 - 36 ore/settimana)': 8.5,
-        'Dipendente (24 - 30 ore/settimana)': 6.0,
-        'Dipendente (18 - 24 ore/settimana)': 5.5,
-        'Dipendente (fino a 18 ore/settimana)': 4.0,
-        'Occasionale/Precario (> 4 mesi)': 3.5,
-        'Occasionale/Precario (fino a 4 mesi)': 3.0,
-        'Disoccupato iscritto al Centro per l\'Impiego': 2.5,
-        'Studente': 4.0,
-        'Nessuna occupazione / Altro': 0.0
+        LAVORO_DIPENDENTE_OLTRE_36H: 9.0,
+        LAVORO_DIPENDENTE_30_36H: 8.5,
+        LAVORO_DIPENDENTE_24_30H: 6.0,
+        LAVORO_DIPENDENTE_18_24H: 5.5,
+        LAVORO_DIPENDENTE_FINO_18H: 4.0,
+        LAVORO_OCCASIONALE_OLTRE_4MESI: 3.5,
+        LAVORO_OCCASIONALE_FINO_4MESI: 3.0,
+        LAVORO_DISOCCUPATO: 2.5,
+        LAVORO_STUDENTE: 4.0,
+        LAVORO_NESSUNA_OCCUPAZIONE: 0.0
     }
 
     punteggio_g1 = punteggi_lavoro.get(dati['lavoro_g1'], 0.0)
-    if dati['disagio_g1'] and dati['lavoro_g1'] not in ['Disoccupato iscritto al Centro per l\'Impiego',
-                                                        'Nessuna occupazione / Altro']:
+    if dati['disagio_g1'] and dati['lavoro_g1'] not in LAVORI_SENZA_DISAGIO:
         punteggio_g1 += 2.0
     punteggio += punteggio_g1
 
     punteggio_g2 = punteggi_lavoro.get(dati['lavoro_g2'], 0.0)
-    if dati['disagio_g2'] and dati['lavoro_g2'] not in ['Disoccupato iscritto al Centro per l\'Impiego',
-                                                        'Nessuna occupazione / Altro']:
+    if dati['disagio_g2'] and dati['lavoro_g2'] not in LAVORI_SENZA_DISAGIO:
         punteggio_g2 += 2.0
     punteggio += punteggio_g2
 

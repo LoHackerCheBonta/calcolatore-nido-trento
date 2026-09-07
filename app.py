@@ -1,6 +1,13 @@
 import streamlit as st
 
-from scoring import OPZIONI_LAVORO, calcola_punteggio, stima_graduatoria
+from scoring import (
+    OPZIONI_DIS_FIGLIO,
+    OPZIONI_DIS_GENITORE,
+    OPZIONI_GENITORE_SOLO,
+    OPZIONI_LAVORO,
+    calcola_punteggio,
+    stima_graduatoria,
+)
 
 # --- INTERFACCIA STREAMLIT ---
 
@@ -16,18 +23,13 @@ lista_attesa = st.checkbox("Ero in lista d'attesa l'anno precedente e sto ripres
 priorita = st.checkbox("Il minore ha una disabilità certificata o grave svantaggio sociale attestato")
 
 st.subheader("2. Situazione Familiare")
-tipo_genitore_solo = st.selectbox(
-    "Presenza di un solo genitore nel nucleo:",
-    ['Due genitori presenti', 'Assenza per vedovanza o mancato riconoscimento',
-     'Assenza per separazione, divorzio o abbandono']
-)
+tipo_genitore_solo = st.selectbox("Presenza di un solo genitore nel nucleo:", OPZIONI_GENITORE_SOLO)
 
 col1, col2 = st.columns(2)
 with col1:
-    dis_genitore = st.selectbox("Disabilità di un genitore:", ['Nessuna', 'Grave (>= 74%)', 'Media (66% - 73%)'])
+    dis_genitore = st.selectbox("Disabilità di un genitore:", OPZIONI_DIS_GENITORE)
 with col2:
-    dis_figlio = st.selectbox("Disabilità di un altro figlio:",
-                              ['Nessuna', 'Grave (>= 74% o minorenne)', 'Media (66% - 73%)'])
+    dis_figlio = st.selectbox("Disabilità di un altro figlio:", OPZIONI_DIS_FIGLIO)
 
 st.subheader("3. Figli nel nucleo familiare (sotto gli 11 anni)")
 st.info("Includi nel conteggio anche la bimba per cui stai presentando la domanda.")
