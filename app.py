@@ -11,7 +11,25 @@ from scoring import (
 
 # --- INTERFACCIA STREAMLIT ---
 
-st.set_page_config(page_title="Calcolatore Nido Trento", page_icon="🧸")
+import streamlit as st
+
+st.set_page_config(
+    page_title="Calcolatore Graduatoria Nido Trento | Stima Punteggio e ICEF",
+    page_icon="🧸"
+)
+
+# Custom Head Injection for Search Engines & Social Shares
+meta_tags = """
+<head>
+    <meta name="description" content="Calcola online il punteggio stimato per la graduatoria dei nidi d'infanzia comunali di Trento. Verifica probabilità di ammissione e criteri ICEF.">
+    <meta name="keywords" content="asilo nido trento, graduatoria nido trento, calcolo punteggio nido, icef trento nidi">
+    <meta property="og:title" content="Calcolatore Graduatoria Nido Trento">
+    <meta property="og:description" content="Stima il tuo punteggio e scopri le probabilità di ammissione nei nidi comunali di Trento.">
+    <meta property="og:type" content="website">
+</head>
+"""
+st.markdown(meta_tags, unsafe_allow_html=True)
+
 st.title("Calcolatore Graduatoria Nido")
 st.markdown(
     "Scopri il tuo punteggio stimato per l'ammissione ai nidi d'infanzia comunali sulla base dei criteri ufficiali.")
